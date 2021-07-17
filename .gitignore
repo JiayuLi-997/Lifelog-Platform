@@ -1,0 +1,5 @@
+# ignore
+dataset/
+db.sqlite3
+lifelogger.db
+manage.log
