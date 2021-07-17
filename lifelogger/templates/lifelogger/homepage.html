@@ -1,0 +1,94 @@
+{%extends "lifelogger/base.html" %}
+
+{% block extra_css %}
+<style>
+    input[type=text] {
+      width: 100%;
+      padding: 12px 20px;
+      margin: 8px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    input[type=password] {
+      width: 100%;
+      padding: 12px 20px;
+      margin: 8px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    input[type=submit]:hover {
+        background-color: #45a049;
+    }
+
+    input[type=submit]{
+        width:30%;
+        display: inline;
+    }
+
+    p.warn {
+        color: #ff0000;
+        font-size: 13px;
+    }
+
+    h2 { color: #000000;}
+    p {color: #000000;}
+
+</style>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+    // 检测输入用户名是否合法
+    function validateForm() {
+        var x = document.forms["login"]["user_name"].value;
+        if (x == null || x == "") {
+            alert("nickname cannot be empty!");
+            return false;
+        }
+        else {
+            var y = x.replace(/\s*/g, "");
+            if (x != y) {
+                alert("nickname cannot contain white space!");
+                return false;
+            }
+        }
+        return true;
+    }
+</script>
+{% endblock %}
+
+{% block main_body %}
+<div class="mainbody">
+    <h2> 登录 </h2>
+    <p> 请输入你的用户名: </p>
+    <form name="login" action="{% url 'lifelogger:homepage' %}" method="post">
+          <!-- onsubmit="return validateForm();" method="post"> -->
+    {% csrf_token %}
+    <input type="text" name="user_name">
+    <p> 请输入你的密码：</p>
+    <input type="password" name="password">
+    <!-- <input type="submit" value="上传手环数据" name="wrist"> -->
+    <footer class="block center">
+    <input type="submit" value="注册用户" name="register" id="register">
+    <p></p>
+    <input type="submit" value="上传数据" name="data">
+    <!-- <input type="submit" value="上传标注表格" name="table"> -->
+    <!-- <input type="submit" value="标注日常数据" name="mood"> -->
+    <input type="submit" value="音乐偏好收集" name="music">
+    <input type="submit" value="音乐偏好收集-第二次" name="music_remain">
+    </footer>
+    </form>
+    {% if messages %}
+    <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+        </script>
+    {% endif %}
+</div>
+{% endblock %}

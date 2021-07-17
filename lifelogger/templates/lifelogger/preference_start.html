@@ -1,0 +1,44 @@
+{%extends "lifelogger/base.html" %}
+
+{% block extra_css %}
+<style>
+    h2{
+        color: #000000;
+    }
+    input[type=submit] {
+        width: 30%;
+        margin: 50px 30px;
+        display: inline;
+    }
+    div.return_home{
+      text-align: center;
+    }
+</style>
+{% endblock %}
+{% block main_body %}
+
+<div class="mainbody">
+<h2> 实验说明 </h2>
+<div class="wrapper row3">
+  <main class="hoc container clear">
+    <div class="content">
+        <p>接下来，你将聆听到20首歌，在听完每首歌之后，你需要记录你此刻的心情，并根据你的喜好对这首歌进行打分。</p>
+        <p>你可以随时选择开始或停止播放，且可通过网页内嵌播放器调整音乐音量。播放每首歌时，请尽可能选择舒适的姿势并专心聆听（建议闭上眼睛），聆听时减少身体活动，并在<b>暂停后</b>再进行评分标注和心情的记录。</p>
+        <p>每首歌请至少聆听1分钟再进行标注，建议聆听时长为1.5分钟-2.5分钟。</p>
+        <p>在实验过程中，你可以随时翻看前后的歌曲标注并进行修改，但请尽量<b>不要重听音乐或修改心情记录</b>。</p>
+        <p>每听5首歌，你将接收到一条暂停提示，此时请短暂休息并联系主试确认设备佩戴情况。</p>
+    </div>
+
+    <form name="start" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% comment %} <p> 请点击链接反馈今日的标注体验：<a href="https://www.wjx.cn/vj/YmLuyiY.aspx">标注体验反馈</a> </p> {% endcomment %}
+        <footer class="block center">
+            <input type="submit" value="实验样例" name="start">
+        </footer>
+    </form>
+</main>
+</div>
+</div>
+
+
+{% endblock %}

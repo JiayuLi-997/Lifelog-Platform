@@ -1,0 +1,24 @@
+{%extends "lifelogger/base.html" %}
+
+{% block extra_css %}
+{% endblock %}
+{% block main_body %}
+<div class="mainbody">
+    <h2> 上传数据 </h2>
+    <form id="upload-all" method="post" enctype="multipart/form-data" >
+    {% csrf_token %}
+    <p> 请上传你的手环数据文件(Gadgetbridge导出数据)：</p>
+　　　<input type="file" id="upload_wrist" name="upload_wrist" /> <br />
+    <p> 请上传你的Lifelog记录文件(zip压缩文件格式)：</p>
+　　　<input type="file" id="upload_lifelog" name="upload_lifelog" /> <br />
+    <input type="submit" value="上传数据" name="data">
+    </form>
+    {% if messages %}
+    <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+        </script>
+    {% endif %}
+</div>
+{% endblock %}

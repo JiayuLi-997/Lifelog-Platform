@@ -1,0 +1,76 @@
+{%extends "lifelogger/base.html" %}
+
+{% block extra_css %}
+<style>
+    div.mainbody {
+        border-radius: 5px;
+        background-color: #f2f2f2;
+        padding: 20px;
+        width: 33%;
+        margin: auto;
+        margin-top: 80px;
+    }
+
+    div.mainbody h2 {
+        text-align: center;
+    }
+    p {
+        font-size: 16px;
+    }
+
+    p.warn {
+        color: #ff0000;
+        font-size: 13px;
+    }
+    input[type=submit] {
+        width: 50%;
+        background-color: #4CAF50;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    input[type=submit]:hover {
+        background-color: #45a049;
+    }
+
+</style>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+</script>
+{% endblock %}
+
+{% block main_body %}
+<div class="mainbody">
+    <h2> 上传数据 </h2>
+    <form id="upload-form" method="post" enctype="multipart/form-data" >
+    {% csrf_token %}
+        <p> 请选择需标注的日期：</p>
+            <input type="date" id="date_selector" name="date_selector" value="2021-04-11"/>
+        <p></p>    
+            <p> 请上传你的手环数据文件：</p>
+        　　　<input type="file" id="upload" name="upload" /> <br />
+        　　　<input type="submit" value="上传" />
+        <p></p>    
+    </form>
+    <script>
+            {% if messages %}
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+            {% endif %}
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var yyyy = today.getFullYear();
+            today = yyyy + '-' + mm + '-' + dd;
+            document.getElementById("date_selector").value = today;
+            console.log(today);
+    </script>
+</div>
+{% endblock %}

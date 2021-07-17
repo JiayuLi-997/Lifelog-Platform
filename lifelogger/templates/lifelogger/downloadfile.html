@@ -1,0 +1,56 @@
+{%extends "lifelogger/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    img{
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+</script>
+{% endblock %}
+
+{% block main_body %}
+<div class="mainbody">
+    <h2> 下载待标注文件 </h2>
+    <p>请下载该文件，修改时间线并标注事件和情绪</p>
+    <form id="download-form" method="post" enctype="multipart/form-data" >
+    {% csrf_token %}
+    {% load static %}
+    <a href="{% static download_file %}" download="activity.xlsx" id="link">下载文件</a>
+    <p></p>
+    <input type="submit" value="上传标注结果" name="submit">
+    <!-- <p>{{ Thayer_mood }}</p> -->
+    <!-- <p>情绪分类量表与二维情绪模型的对应关系图（供参考）：</p> -->
+    <!-- {% load static %} -->
+    <!-- <img src="{% static Thayer_mood %}" height="400" width="450"> -->
+    </form>
+    <script>
+    {% if messages %}
+        {% for msg in messages %}
+            alert('{{ msg.message }}');
+        {% endfor %}
+    {% endif %}
+    function getQueryVariable()
+    {
+       var query = window.location.href;
+       var vars = query.split("&");
+       var params = {};
+       for (var i=1;i<vars.length;i++) {
+               var pair = vars[i].split("=");
+               params[pair[0]]=pair[1];
+       }
+       return (params);
+    }
+    var params = getQueryVariable();
+    var href = "{% static '"+params["name"]+"/"+params["file"]+"' %}";
+    var a = document.getElementById("link");
+    // a.setAttribute("href",href);
+    a.setAttribute("download",params["file"]);
+    </script>
+</div>
+{% endblock %}

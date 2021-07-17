@@ -1,0 +1,330 @@
+{%extends "lifelogger/base.html" %}
+
+{% block extra_css %}
+<style>
+    div.mainbody {
+        border-radius: 5px;
+        background-color: #f2f2f2;
+        padding: 20px;
+        width: 50%;
+        margin: auto;
+        margin-top: 80px;
+    }
+    img.thayer_img {
+      vertical-align: middle;
+    }
+    p[name="small"]{
+        font-size:12px;
+    }
+    h2 {
+        color: #000000;
+    }
+    div.submit{
+      text-align: center;
+    }
+    input[type=submit] {
+        width: 20%;
+        display: inline;
+        margin: 50px 30px;
+    }
+    input[type=button]{
+      display: inline;
+    }
+</style>
+{% endblock %}
+
+{% block main_body %}
+<div class="mainbody">
+<h2>请聆听以下的音乐，记录你听完音乐后的心情，并按照你的喜好进行打分。</h2>
+<div class="wrapper row3">
+  <main class="hoc container clear">
+    <div class="content">
+      <div class="group btmspace-50 demo">
+        <h2 id="m_title">请听以下的音乐：</h2>
+        <div class="wrapper row3">
+          <div id="music_info">
+            <div class="group demo">
+              <div class="one_half first">音乐名：</div>
+              <div class="one_half">艺术家：</div>
+            </div>
+            {% comment %} <div><a href="https://y.qq.com/n/yqq/song/000F3ISq1Se9Yn.html" target="_blank"><p>点击这里，聆听音乐</p></a></div> {% endcomment %}
+            <audio controls onclick="save_time()" id="music_source">
+                {% load static %}
+                <source src="{% static music_name %}" type="audio/mpeg" >
+                您的浏览器不支持 audio 元素。
+            </audio>
+          </div>
+        </div>
+        <div style="position:absolute;left: 100px;top:0px;width:auto;height: auto;" id="myCanvas_div">
+            <canvas id="myCanvas">当前浏览器不支持canvas组件请升级！</canvas>
+        </div>
+        <p>请在以下二维图表中描述你听完这首音乐后的心情：</p>
+        <p name="small">注：图片中标注的情感仅为示例，你可以点击该二维图上任意点来描述现在的情绪。</p>
+        <div id="image_mood">
+          {% load static %}
+          <img src="{% static 'thayer_label3.png' %}" id="thayer_img" >
+        </div>
+        <p>请给刚才听到的音乐打分（1-5分）:</p>
+        <div id="mark">
+            <div id="pic">
+                <img src="images/star0.png" title="1" name="0"/>
+                <img src="images/star0.png" title="2" name="1"/>
+                <img src="images/star0.png" title="3" name="2"/>
+                <img src="images/star0.png" title="4" name="3"/>
+                <img src="images/star0.png" title="5" name="4"/>
+            </div>
+            <div></div>
+        </div>
+        <form id="download-form" method="post" enctype="multipart/form-data" >
+        {% csrf_token %}
+          <footer class="block center">
+            <input type="submit" value="上一首歌" name="last">
+            <input type="submit" value="下一首歌" name="next">
+          </footer>
+          <input type="hidden" id="coordinate_result" name="coordinate_result">
+          <input type="hidden" id="rating_result" name="rating_result">
+          <input type="hidden" id="this_id" name="this_id">
+          <input type="hidden" id="audio_time" name="audio_time">
+          <input type="hidden" id="page_time" name="page_time">
+          <input type="submit" value="开始实验" name="start" id="start_experiment">
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+    {% if messages %}
+    <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+    </script>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block body_extra_script %}
+<script>
+    var pic = document.getElementById("pic");
+    var stars = pic.getElementsByTagName('img');
+    var text = document.getElementById("mark").getElementsByTagName("div")[1];
+    var divList= stars;
+    var flag=0;
+    var star_white ="/lifelogger/static/images/star_white.png"; 
+    var star_black = "/lifelogger/static/images/star_black.png";
+
+    var music_list = {{ music | safe }};
+    var current = {{ id | safe }};
+    var results = {{ results | safe }};
+    document.getElementById("m_title").innerText += "("+(parseInt(current))+"/"+(Object.keys(music_list).length-1)+")";
+    document.getElementById("this_id").value = current;
+    var ul_list = document.getElementById("music_list");
+    var img = document.getElementById("thayer_img");
+    img.style.width = "60%";
+    var mood_div = document.getElementById("image_mood");
+    mood_div.style.textAlign = "center";
+    var music_info = document.getElementById("music_info").getElementsByTagName("div")[0].getElementsByTagName("div");
+    // var music_url = document.getElementById("music_info").getElementsByTagName("div")[3].getElementsByTagName("a")[0];
+    music_info[0].innerText += music_list[current][1];
+    music_info[1].innerText += music_list[current][2];
+    
+    var audio = document.getElementById("music_source");
+
+    var logging = "start--"+current+"--"+(new Date()).getTime();
+    document.getElementById("page_time").value += logging+"\n";
+
+    audio.addEventListener("play",function(){
+      logging = "play--"+current+"--"+(new Date()).getTime()+"--"+audio.currentTime
+      document.getElementById("audio_time").value += logging+"\n"; 
+    })
+    audio.addEventListener("pause",function(){
+      logging = "pause--"+current+"--"+(new Date()).getTime()+"--"+audio.currentTime
+      document.getElementById("audio_time").value += logging+"\n";
+    })
+    if(current==0){
+      var last = document.getElementsByName("last")[0];
+      last.setAttribute("disabled","disabled");
+      var next = document.getElementsByName("next")[0];
+      next.setAttribute("disabled","disabled");
+    }
+    else if(current==1){
+      var last = document.getElementsByName("last")[0];
+      var next = document.getElementsByName("next")[0];
+      var start = document.getElementById("start_experiment");
+      if (start != null){
+        start.parentNode.removeChild(start);
+      }
+      last.setAttribute("disabled","disabled");
+      last.style.backgroundColor="gray";
+      next.removeAttribute("disabled");
+    }
+    else if(current==Object.keys(music_list).length-1){
+      var next = document.getElementsByName("next")[0];
+      var start = document.getElementById("start_experiment");
+      if (start != null){
+        start.parentNode.removeChild(start);
+      }
+      next.value="提交";
+      next.name="submit";
+      next.onclick = function(){
+        if(confirm("确定要提交吗？")){
+          return true;
+        }
+        else{
+          return false;
+        }
+      }
+    }
+    else{
+      var last = document.getElementsByName("last")[0];
+      var next = document.getElementsByName("next")[0];
+      var start = document.getElementById("start_experiment");
+      if (start != null){
+        start.parentNode.removeChild(start);
+      }
+      last.removeAttribute("disabled");
+      last.style.backgroundColor="#4CAF50";
+      next.value="下一首歌";
+    }
+    {% comment %} for (var i=0; i< Object.keys(music_list).length;i++){
+        var arr_li = document.createElement("li");
+        var arr_p = document.createElement("div");
+        arr_p.setAttribute("class", "one_third first");
+        arr_p.innerText = "歌曲名： "+music_list[i][1];//+"                        演唱者："+music_list[i][2]; 
+        var arr_p2 = document.createElement("div");
+        arr_p2.setAttribute("class", "one_third");
+        arr_p2.innerText = "演唱者："+music_list[i][2];
+        var arr_p3 = document.createElement("div");
+        arr_p3.setAttribute("class","one")
+        arr_li.appendChild(arr_p);
+        arr_li.appendChild(arr_p2);
+        console.log(arr_li);
+        ul_list.appendChild(arr_li);
+        console.log(music_list[i]);
+    } {% endcomment %}
+    for (var i=0;i<stars.length;i++){
+      stars[i].style.width="20px";
+      stars[i].src= star_white;
+    }
+    var description = ["非常不喜欢","不喜欢","一般","喜欢","非常喜欢"];
+    
+    for(var i=0;i<divList.length;i++)
+    {
+        divList[i].onmouseover=function()
+        {
+          this.setAttribute("src", star_black);
+        }
+        divList[i].onclick=function()
+        {
+            flag = this.title;
+            for(var k=0;k<this.title;k++){
+                divList[k].setAttribute("src", star_black);
+            }
+            for(var k=this.title;k<5;k++){
+                divList[k].setAttribute("src", star_white);
+            }
+            text.innerText = this.title+"分"+"("+description[this.title-1]+")";
+            document.getElementById("rating_result").value = parseInt(flag);
+        }
+        divList[i].onmouseout=function()
+        {
+
+            for(var k=0;k<parseInt(flag);k++){
+                divList[k].setAttribute("src", star_black);
+            }
+            for(var k=parseInt(flag); k<5;k++){
+                divList[k].setAttribute("src", star_white);
+            }
+            if(flag>0){
+            text.innerText = flag+"分"+"("+description[flag-1]+")";
+            document.getElementById("rating_result").value = parseInt(flag);
+            }
+        }
+    }
+
+    var settimes = 0;
+    SetCanvas();
+    function SetCanvas(){
+        if (settimes>1){
+          return;
+        }
+        settimes += 1;
+        console.log("Set Canvas");
+        var canv_div = document.getElementById("myCanvas_div");
+        var image = document.getElementById("image_mood");
+        // console.log("Image: "+parseInt(image.style.left));
+        canv_div.style.left = parseInt(image.offsetLeft)+"px"; 
+        canv_div.style.top = parseInt(image.offsetTop)+"px";
+        canv_div.style.width = image.clientWidth+"px";
+        canv_div.style.height = image.offsetHeight+"px";
+        var c=document.getElementById("myCanvas");
+        c.width = image.clientWidth;
+        c.height = image.clientHeight;
+        console.log(canv_div.style.height);
+        console.log(image.offsetHeight);
+        SetHistory();
+        // c.style.width = "auto";
+        // c.style.width = image.clientWidth+"px";
+        // c.style.height = image.clientHeight+"px";
+    }
+    document.getElementById('myCanvas_div').onclick=function(e){
+        var e = e || window.event;
+        // c.style.width = "100%";
+        // c.style.height = "100%";
+        var c=document.getElementById("myCanvas");
+        var elem = e.target;
+        var ctx=c.getContext("2d");
+        if (c.contains(elem)){
+        c.height = c.height;
+        ctx.fillStyle="#FF0000";
+        ctx.beginPath();
+        // ctx.arc(parseInt(e.x)-parseInt(image.offsetLeft),parseInt(e.y)-parseInt(image.offsetTop),200,0,2*Math.PI);
+        // ctx.arc(0,0,50,0,2*Math.PI);
+        W = c.width;
+        ctx.arc(parseInt(e.offsetX),parseInt(e.offsetY),parseInt(W/100),0,2*Math.PI);
+        // ctx.arc(parseInt(x),parseInt(y),2,0,2*Math.PI);
+        // ctx.arc(parseInt(image.offsetLeft),parseInt(image.offsetTop),50,0,2*Math.PI);
+        ctx.closePath();
+        ctx.fill();
+        // ctx.stroke();
+        // var image = document.getElementById("image_"+Status);
+        var x=e.offsetX / c.width;
+        var y = e.offsetY / c.height;
+        var coor = x.toFixed(3) + ","+y.toFixed(3);
+        console.log(coor);
+        document.getElementById("coordinate_result").value = coor; 
+        }
+    }
+    function SetHistory(){
+    if(current in results){
+      console.log("Set history.");
+      var rating = results[current][1];
+      var coordinate = results[current][2];
+      var c=document.getElementById("myCanvas");
+      for(var k=0;k<rating;k++){
+          console.log(k);
+          divList[k].setAttribute("src", star_black);
+      }
+      text.innerText = rating+"分"+"("+description[rating-1]+")";
+      document.getElementById("rating_result").value = rating;
+      document.getElementById("coordinate_result").value = coordinate; 
+      var offsetX = parseFloat(coordinate.substring(0,4)) * c.width;
+      var offsetY = parseFloat(coordinate.substring(6)) * c.height;
+      var ctx=c.getContext("2d");
+      ctx.fillStyle="#FF0000";
+      ctx.beginPath();
+      // ctx.arc(parseInt(e.x)-parseInt(image.offsetLeft),parseInt(e.y)-parseInt(image.offsetTop),200,0,2*Math.PI);
+      // ctx.arc(0,0,50,0,2*Math.PI);
+      W = c.width;
+      ctx.arc(parseInt(offsetX),parseInt(offsetY),parseInt(W/100),0,2*Math.PI);
+      ctx.closePath();
+      ctx.fill();
+      console.log(offsetX);
+      console.log(offsetY);
+      console.log("Set done.");
+    }
+    }
+</script>
+{% endblock %}
+
+{% block extra_script %}
+{% endblock %}

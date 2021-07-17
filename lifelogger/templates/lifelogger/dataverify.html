@@ -1,0 +1,89 @@
+{%extends "lifelogger/base.html" %}
+
+{% block extra_css %}
+<style>
+input, label{
+    display: inline;
+}
+input[type=submit]{
+    width: 30%;
+}
+</style>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+</script>
+{% endblock %}
+
+{% block main_body %}
+<div class="mainbody">
+    <h2> 请您查看已上传的数据： </h2>
+    <form id="insight" method="post" enctype="multipart/form-data" >
+    {% csrf_token %}
+    {% load static %}
+        {% if error_msg == 0 %}
+            <h3><input type='checkbox' id='data_id' name='data_id' value="ID数据" checked><label for='data_id'>ID数据：</label></h3>
+            <p>{{ ids }}</p>
+            <h3><input type='checkbox' id='data_wrist' name='data_wrist' value="手环数据" checked><label for='data_wrist'>手环数据：</label></h3>
+            <p>历史数据：</p>
+            <p>{{ wrist }}</p>
+            <p>今日数据：</p>
+            <p>{{ wrist_today }}</p>
+            <h3><input type='checkbox' id='data_mood' name='data_mood' value="情绪数据" checked><label for='data_mood'>情绪数据：</label></h3>
+            <p>{{ mood }}</p>
+            <br>
+            <p>{{ mood_event}} </p>
+            <h3><input type='checkbox' id='data_gps' name='data_gps' value="GPS数据" checked><label for='data_gps'>GPS与天气数据：</label></h3>
+            <p>{{ gps }}</p>
+            <h3><input type='checkbox' id='data_diet' name='data_diet' value="饮食数据" checked><label for='data_diet'>饮食数据：</label></h3>
+            <p>{{ diet }}</p>
+            <h3><input type='checkbox' id='data_music' name='data_music' value="音乐数据" checked><label for='data_music'>音乐数据：</label></h3>
+            <p> 日常听歌：</p>
+            <p>{{ music }}</p>
+            <p> 推荐听歌：</p>
+            <p>{{ rec_music }}</p>
+            <h3><input type='checkbox' id='data_act' name='data_act' value="活动数据" checked><label for='data_act'>活动数据：</label></h3>
+            <p>{{ activity }}</p>
+        {% else %}
+            <h3>出错信息：</h3>
+            <p>{{ error }}</p>
+        {% endif %}
+        <input type='submit' value="确认上传以上数据" name='upload' id='upload' onclick="return uploadJob();">
+    </form>
+    {% if messages %}
+    <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+        </script>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block body_extra_script %}
+<script>
+    function uploadJob(){
+        var checkboxes = document.getElementsByTagName("input");
+        var up = "";
+        var noup = "";
+        for(var i=0;i<checkboxes.length;i++){
+            var box= checkboxes[i];
+            if(box.type=="checkbox"){
+                if(box.checked==true){
+                    up += box.value+",";
+                }
+                else{
+                    noup += box.value+",";
+                }
+            }
+        }
+        if(confirm("上传数据: "+up+" \n\n不上传数据: "+noup))
+        {
+            return true;
+        }else{
+		  return false;
+        }
+    }
+</script>
+{% endblock %}

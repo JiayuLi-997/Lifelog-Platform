@@ -1,0 +1,39 @@
+{%extends "lifelogger/base.html" %}
+
+{% block extra_css %}
+<style>
+    h2{
+        color: #000000;
+    }
+    input[type=submit] {
+        width: 30%;
+        margin: 50px 30px;
+        display: inline;
+    }
+    div.return_home{
+      text-align: center;
+    }
+</style>
+{% endblock %}
+{% block main_body %}
+
+<div class="mainbody">
+<div class="wrapper row3">
+  <main class="hoc container clear">
+
+    <h2> 训练模型</h2>
+    <form name="train" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% comment %} <p> 请点击链接反馈今日的标注体验：<a href="https://www.wjx.cn/vj/YmLuyiY.aspx">标注体验反馈</a> </p> {% endcomment %}
+        <p>请输入用户名：</p>
+        <input type="text" name="user_name">
+        <footer class="block center">
+            <input type="submit" value="提交训练" name="train">
+        </footer>
+    </form>
+</main>
+</div>
+</div>
+
+
+{% endblock %}

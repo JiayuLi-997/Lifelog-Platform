@@ -1,0 +1,62 @@
+{%extends "lifelogger/base.html" %}
+
+{% block extra_css %}
+<style>
+    input[type=text] {
+      width: 100%;
+      padding: 12px 20px;
+      margin: 8px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    input[type=password] {
+      width: 100%;
+      padding: 12px 20px;
+      margin: 8px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    input[type=submit] {
+        width: 20%;
+        display: block;
+        margin: 10px 30px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+</script>
+{% endblock %}
+
+{% block main_body %}
+<div class="mainbody">
+    <h2> 注册用户 </h2>
+    <p> 请输入用户名: </p>
+    <form name="register" action="{% url 'lifelogger:register' %}" method="post">
+    {% csrf_token %}
+    <input type="text" name="user_name">
+    <p> 请输入密码：</p>
+    <input type="password" name="password">
+    <p>请再次确认密码：</p>
+    <input type="password" name="password2">
+    <!-- <input type="submit" value="上传手环数据" name="wrist"> -->
+    <p></p>
+    <input type="submit" value="注册用户" name="register">
+    <input type="submit" value="返回首页" name="return">
+    <!-- <input type="submit" value="上传标注表格" name="table"> -->
+    <!-- <input type="submit" value="标注日常数据" name="mood"> -->
+    </form>
+    {% if messages %}
+    <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+    </script>
+    {% endif %}
+</div>
+{% endblock %}

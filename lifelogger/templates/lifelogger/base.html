@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>生活日志收集</title>
+{% load static %}
+<link href="{% static "layout/styles/layout.css" %}" rel="stylesheet" type="text/css" media="all">
+<style>
+    body {
+        margin: 0;
+        font-size: 100%;
+        background-color: lightblue;
+        font
+    }
+    
+    p, h1, h2, h3, h4, h5, h6 {
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    .header {
+        background-color: #f2f2f2;
+        padding: 5px;
+        text-align: center;
+    }
+    div.header h1 {
+        font-size: 2em;
+    }
+    input{
+        color: black;
+    }
+    input[type=submit] {
+        width: 100%;
+        background-color: #4CAF50;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    input[type=submit]:hover {
+        background-color: #45a049;
+    }
+
+    div.mainbody {
+        border-radius: 5px;
+        background-color: #f2f2f2;
+        padding: 20px;
+        width: 50%;
+        margin: auto;
+        margin-top: 80px;
+        color: black;
+    }
+
+    div.mainbody h2 {
+        text-align: center;
+    }
+
+    p {
+        font-size: 16px;
+    }
+
+    p.warn {
+        color: #ff0000;
+        font-size: 13px;
+    }
+
+    h1 {
+        color: #000000;
+    }
+
+    div.main_over{
+        background-color: lightblue;
+    }
+
+</style>
+
+{% block extra_css %}
+{% endblock %}
+
+<!-- JAVASCRIPTS -->
+{% load static %}
+<script src="{% static 'layout/scripts/jquery.min.js' %}"></script>
+{% load static %}
+<script src="{% static 'layout/scripts/jquery.backtotop.js' %}"></script>
+{% load static %}
+<script src="{% static 'layout/scripts/jquery.mobilemenu.js' %}"></script>
+</head>
+
+<body>
+{% comment %} <div class="bgded overlay" style="background-image:url({% static 'images/demo/backgrounds/white.jpeg' %});">  {% endcomment %}
+<div class="bgded overlay"> 
+    <div class="header">
+        <h1>THUIR生活日志数据收集平台</h1>
+    </div>
+</div>
+<div class="main_over">
+    {% block main_body %}
+    {% endblock %}
+</div>
+    {% block body_extra_script %}
+    {% endblock %}
+</body>
+{% block extra_script %}
+{% endblock %}
+</html>

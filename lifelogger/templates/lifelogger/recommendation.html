@@ -1,0 +1,18 @@
+{%extends "lifelogger/base.html" %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block main_body %}
+
+<div class="mainbody">
+    <p> 您已完成今日的情绪标注，感谢您的时间!</p>
+    <form name="thanks" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <p> 请点击链接反馈今日的标注体验：<a href="https://www.wjx.cn/vj/YmLuyiY.aspx">标注体验反馈</a> </p>
+        <input type="submit" value="返回首页" name="return">
+    </form>
+</div>
+
+
+{% endblock %}

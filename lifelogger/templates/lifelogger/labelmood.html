@@ -1,0 +1,329 @@
+{%extends "lifelogger/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    div.mainbody {
+        border-radius: 5px;
+        background-color: #f2f2f2;
+        padding: 20px;
+        width: 33%;
+        margin: auto;
+        margin-top: 80px;
+    }
+
+    div.mainbody h2 {
+        text-align: center;
+    }
+    p {
+        font-size: 16px;
+    }
+
+    p.warn {
+        color: #ff0000;
+        font-size: 13px;
+    }
+
+    input[type=submit] {
+        width: 70%;
+        background-color: #4CAF50;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    input[type=submit]:hover {
+        background-color: #45a049;
+    }
+
+    img{
+        text-align: center;
+    }
+
+    p[name="gray"]{
+        color: gray;
+    }
+    p[name="small"]{
+        font-size:12px;
+    }
+
+    table{
+        padding: 14px 20px;
+        margin: 8px 0;
+
+    }
+    table td{
+        text-align: center;
+        width: 80px;
+    }
+
+    textarea{
+        width: 100%;
+    }
+
+</style>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+</script>
+{% endblock %}
+
+{% block main_body %}
+<div class="mainbody">
+    <h2> 日常情绪收集 </h2>
+    <p>请回忆过去3小时内是否发生了激发您较强烈情绪的突发事件，并记录具体事件及情绪。</p>
+    <form id="download-form" method="post" enctype="multipart/form-data" >
+    {% csrf_token %}
+    <p></p>
+    <div>
+    <p>1. 请问过去的3小时内，是否发生了激发您较强烈的情绪的突发事件？（例如，看到某条新闻、得知考试成绩、收到意外的礼物等）</p>
+    <span onclick="show()">   
+        <input type="radio" name="event_choose" value="yes">是<br>
+        <input type="radio" name="event_choose" value="no">否
+    </span>
+    </div>
+    <div style="position:absolute;left: 100px;top:0px;width:auto;height: auto;" id="myCanvas_div">
+    <canvas id="myCanvas">当前浏览器不支持canvas组件请升级！</canvas>
+    </div>
+    <div id="yes">
+    <p>2. 请简要描述激发您强烈情绪的事件：</p>
+        <textarea rows="5" cols=80% name="event_text_yes"></textarea>
+    <p>3. 请记录该事件发生的大致时刻：<input type="text" name="event_moment"></p>
+        <p name="gray">在本实验中，我们使用两种量表衡量您的情绪：分类情绪量表和二维情绪量表，请您分别用两种方式衡量您现在的情绪。</p>
+        <p>3. 请在以下二维图中点击能代表您发生该事件后情绪的位置：</p>
+        <div id="image_yes">
+        {% load static %}
+        <img src="{% static Thayer_mood %}" height=40% width=90% id="thayer_img">
+        </div>
+        <p name="small">注：图片中标注的情感仅为示例，您可以点击该二维图上任意点来描述您现在的情绪。</p>
+        <input type="hidden" id="coordinate_yes" name="coordinate_yes">
+        <div id="table_yes">
+        <p>4. 请描述您发生该事件后的情绪在六个情绪维度上的程度：</p>
+            <table>
+                <tr>
+                    <td></td>
+                    <td>无</td>
+                    <td>轻微</td>
+                    <td>中等</td>
+                    <td>强烈</td>
+                    <td>非常强烈</td>
+                </tr>
+                <tr>
+                    <td>快乐</td>
+                    <td><input type="radio" name="mood_happy" value="null"></td>
+                    <td><input type="radio" name="mood_happy" value="slight"></td>
+                    <td><input type="radio" name="mood_happy" value="moderate"></td>
+                    <td><input type="radio" name="mood_happy" value="strong"></td>
+                    <td><input type="radio" name="mood_happy" value="extreme"></td>
+                </tr>
+                <tr>
+                    <td>惊讶</td>
+                    <td><input type="radio" name="mood_surprise" value="null"></td>
+                    <td><input type="radio" name="mood_surprise" value="slight"></td>
+                    <td><input type="radio" name="mood_surprise" value="moderate"></td>
+                    <td><input type="radio" name="mood_surprise" value="strong"></td>
+                    <td><input type="radio" name="mood_surprise" value="extreme"></td>
+                </tr>
+                <tr>
+                    <td>愤怒</td>
+                    <td><input type="radio" name="mood_anger" value="null"></td>
+                    <td><input type="radio" name="mood_anger" value="slight"></td>
+                    <td><input type="radio" name="mood_anger" value="moderate"></td>
+                    <td><input type="radio" name="mood_anger" value="strong"></td>
+                    <td><input type="radio" name="mood_anger" value="extreme"></td>
+                </tr>
+                <tr>
+                    <td>恐惧</td>
+                    <td><input type="radio" name="mood_fear" value="null"></td>
+                    <td><input type="radio" name="mood_fear" value="slight"></td>
+                    <td><input type="radio" name="mood_fear" value="moderate"></td>
+                    <td><input type="radio" name="mood_fear" value="strong"></td>
+                    <td><input type="radio" name="mood_fear" value="extreme"></td>
+                </tr>
+                <tr>
+                    <td>厌恶</td>
+                    <td><input type="radio" name="mood_disgust" value="null"></td>
+                    <td><input type="radio" name="mood_disgust" value="slight"></td>
+                    <td><input type="radio" name="mood_disgust" value="moderate"></td>
+                    <td><input type="radio" name="mood_disgust" value="strong"></td>
+                    <td><input type="radio" name="mood_disgust" value="extreme"></td>
+                </tr>
+                <tr>
+                    <td>悲伤</td>
+                    <td><input type="radio" name="mood_sad" value="null"></td>
+                    <td><input type="radio" name="mood_sad" value="slight"></td>
+                    <td><input type="radio" name="mood_sad" value="moderate"></td>
+                    <td><input type="radio" name="mood_sad" value="strong"></td>
+                    <td><input type="radio" name="mood_sad" value="extreme"></td>
+                </tr>
+            </table>
+            </div>
+    </div>
+    <div id="no">
+        <p>2. 请简要描述您过去3小时之内进行的活动（可选择1-2个主要活动填写）：</p>
+            <textarea rows="5" cols="50" name="event_text_no"></textarea>
+        <p name="gray">在本实验中，我们使用两种量表衡量您的情绪：分类情绪量表和二维情绪量表，请您分别用两种方式衡量您现在的情绪。</p>
+        <p>3. 请在以下二维图中点击能代表您当前情绪的位置：</p>
+        <div id="image_no">
+        {% load static %}
+        <img src="{% static Thayer_mood %}" height=40% width=90% id="thayer_img">
+        </div>
+        <p name="small">注：图片中标注的情感仅为示例，您可以点击该二维图上任意点来描述您现在的情绪。</p>
+        <input type="hidden" id="coordinate_no" name="coordinate_no">
+        <div id="table_no">
+        <p>4. 请描述您当前情绪在六个情绪维度上的程度：</p>
+            <table>
+                <tr>
+                    <td></td>
+                    <td>无</td>
+                    <td>轻微</td>
+                    <td>中等</td>
+                    <td>强烈</td>
+                    <td>非常强烈</td>
+                </tr>
+                <tr>
+                    <td>快乐</td>
+                    <td><input type="radio" name="mood_happy" value="null"></td>
+                    <td><input type="radio" name="mood_happy" value="slight"></td>
+                    <td><input type="radio" name="mood_happy" value="moderate"></td>
+                    <td><input type="radio" name="mood_happy" value="strong"></td>
+                    <td><input type="radio" name="mood_happy" value="extreme"></td>
+                </tr>
+                <tr>
+                    <td>惊讶</td>
+                    <td><input type="radio" name="mood_surprise" value="null"></td>
+                    <td><input type="radio" name="mood_surprise" value="slight"></td>
+                    <td><input type="radio" name="mood_surprise" value="moderate"></td>
+                    <td><input type="radio" name="mood_surprise" value="strong"></td>
+                    <td><input type="radio" name="mood_surprise" value="extreme"></td>
+                </tr>
+                <tr>
+                    <td>愤怒</td>
+                    <td><input type="radio" name="mood_anger" value="null"></td>
+                    <td><input type="radio" name="mood_anger" value="slight"></td>
+                    <td><input type="radio" name="mood_anger" value="moderate"></td>
+                    <td><input type="radio" name="mood_anger" value="strong"></td>
+                    <td><input type="radio" name="mood_anger" value="extreme"></td>
+                </tr>
+                <tr>
+                    <td>恐惧</td>
+                    <td><input type="radio" name="mood_fear" value="null"></td>
+                    <td><input type="radio" name="mood_fear" value="slight"></td>
+                    <td><input type="radio" name="mood_fear" value="moderate"></td>
+                    <td><input type="radio" name="mood_fear" value="strong"></td>
+                    <td><input type="radio" name="mood_fear" value="extreme"></td>
+                </tr>
+                <tr>
+                    <td>厌恶</td>
+                    <td><input type="radio" name="mood_disgust" value="null"></td>
+                    <td><input type="radio" name="mood_disgust" value="slight"></td>
+                    <td><input type="radio" name="mood_disgust" value="moderate"></td>
+                    <td><input type="radio" name="mood_disgust" value="strong"></td>
+                    <td><input type="radio" name="mood_disgust" value="extreme"></td>
+                </tr>
+                <tr>
+                    <td>悲伤</td>
+                    <td><input type="radio" name="mood_sad" value="null"></td>
+                    <td><input type="radio" name="mood_sad" value="slight"></td>
+                    <td><input type="radio" name="mood_sad" value="moderate"></td>
+                    <td><input type="radio" name="mood_sad" value="strong"></td>
+                    <td><input type="radio" name="mood_sad" value="extreme"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <input type="submit" value="提交表格" name="table">
+    </form>
+    <script>
+    {% if messages %}
+        {% for msg in messages %}
+            alert('{{ msg.message }}');
+        {% endfor %}
+    {% endif %}
+        // var c=document.getElementById("myCanvas");
+        // var ctx=c.getContext("2d");
+        // ctx.beginPath();
+        // // ctx.arc(e.x-100,e.y,50,0,2*Math.PI);
+        // ctx.arc(0,0,50,0,2*Math.PI);
+        // ctx.stroke();
+        // console.log(ctx);
+    document.getElementById("yes").hidden= true;
+    document.getElementById("no").hidden= true;
+    var Status = "yes"
+    // document.getElementsByName("event_choose").onclick=
+    function show(){
+        var choose = document.getElementsByName("event_choose");
+        if (choose[0].checked){
+            document.getElementById("yes").hidden= false;
+            document.getElementById("no").hidden= true;
+            document.getElementById("table_yes").hidden= true;
+            document.getElementById("table_no").hidden= true;
+            SetCanvas("yes");
+            Status="yes"
+        }
+        if (choose[1].checked){
+            document.getElementById("no").hidden= false;
+            document.getElementById("yes").hidden= true;
+            document.getElementById("table_yes").hidden= true;
+            document.getElementById("table_no").hidden= true;
+            SetCanvas("no");
+            Status="no"
+        }
+    }
+    
+    function SetCanvas(Ra){
+        console.log(Ra)
+        console.log("Set Canvas");
+        var canv_div = document.getElementById("myCanvas_div");
+        var image = document.getElementById("image_"+Ra);
+        // console.log("Image: "+parseInt(image.style.left));
+        canv_div.style.left = parseInt(image.offsetLeft)+"px"; 
+        canv_div.style.top = parseInt(image.offsetTop)+"px";
+        canv_div.style.width = image.clientWidth+"px";
+        canv_div.style.height = image.clientHeight+"px";
+        var c=document.getElementById("myCanvas");
+        c.width = image.clientWidth;
+        c.height = image.clientHeight;
+        // c.style.width = "auto";
+        // c.style.width = image.clientWidth+"px";
+        // c.style.height = image.clientHeight+"px";
+    }
+
+    document.getElementById('myCanvas_div').onclick=function(e){
+        var e = e || window.event;
+        // c.style.width = "100%";
+        // c.style.height = "100%";
+        var elem = e.target;
+        var c = document.getElementById('myCanvas');
+        if (c.contains(elem)){
+        c.height = c.height;
+        var ctx=c.getContext("2d");
+        ctx.fillStyle="#FF0000";
+        ctx.beginPath();
+        // ctx.arc(parseInt(e.x)-parseInt(image.offsetLeft),parseInt(e.y)-parseInt(image.offsetTop),200,0,2*Math.PI);
+        // ctx.arc(0,0,50,0,2*Math.PI);
+        W = c.width;
+        ctx.arc(parseInt(e.offsetX),parseInt(e.offsetY),parseInt(W/28),0,2*Math.PI);
+        // ctx.arc(parseInt(x),parseInt(y),2,0,2*Math.PI);
+        // ctx.arc(parseInt(image.offsetLeft),parseInt(image.offsetTop),50,0,2*Math.PI);
+        ctx.closePath();
+        ctx.fill();
+        // ctx.stroke();
+        // var image = document.getElementById("image_"+Status);
+        var center_x = c.width/2 ;
+        var center_y = c.height/2;
+        var x=e.offsetX / c.width;
+        var y = e.offsetY / c.height;
+        var coor = x.toFixed(3) + ","+y.toFixed(3);
+        console.log(coor);
+        document.getElementById("coordinate_"+Status).value = coor; 
+        }
+        
+    }
+    </script>
+</div>
+{% endblock %}
