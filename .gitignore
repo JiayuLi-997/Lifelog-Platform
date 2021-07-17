@@ -1,5 +1,6 @@
 # ignore
 dataset/
+Simple_load/__pycache__
 db.sqlite3
 lifelogger.db
 manage.log
